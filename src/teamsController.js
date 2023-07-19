@@ -9,8 +9,8 @@ const findAllTeams = async (_req, res, next) => {
         const data = await fs.readFile(path.resolve(__dirname, TEAMS_DATA_PATH));
         const teams = JSON.parse(data);
         res.status(OK).json({ teams });
-    } catch (error) {
-        return next(error);
+    } catch ({ status, message }) {
+        return next({ status, message });
     }
 };
 
@@ -22,8 +22,8 @@ const newTeam = async (req, res, next) => {
         teams.push(team);
         await fs.writeFile(path.resolve(__dirname, TEAMS_DATA_PATH), JSON.stringify(teams));
         res.status(CREATED).send(team);
-    } catch (error) {
-        return next(error);
+    } catch ({ status, message }) {
+        return next({ status, message });
     }
 };
 
@@ -40,8 +40,8 @@ const updateTeam = async (req, res, next) => {
         await fs.writeFile(path.resolve(__dirname, TEAMS_DATA_PATH), JSON.stringify(teams));
 
         res.status(OK).json({ teamToUpdate });      
-    } catch (error) {
-        return next(error);
+    } catch ({ status, message }) {
+        return next({ status, message });
     }
 };
 
@@ -54,8 +54,8 @@ const findTeamById = async (req, res, next) => {
         const teamById = teams.find((team) => team.id === Number(id));
         console.log('hi');
         res.status(OK).json(teamById);      
-    } catch (error) {
-        return next(error);
+    } catch ({ status, message }) {
+        return next({ status, message });
     }
 };
 
@@ -70,8 +70,8 @@ const deleteTeamById = async (req, res, next) => {
         await fs.writeFile(path.resolve(__dirname, TEAMS_DATA_PATH), JSON.stringify(teams));
           
         res.status(OK).end();
-    } catch (error) {
-        return next(error);
+    } catch ({ status, message }) {
+        return next({ status, message });
     }
 };
 

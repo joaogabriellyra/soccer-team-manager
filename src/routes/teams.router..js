@@ -8,9 +8,10 @@ const router = express.Router();
 
 router.get('/', findAllTeams);
 router.post('/', validateTeam, newTeam);
-router.put('/:id', existingId, validateTeam, updateTeam);
-router.get('/:id', existingId, findTeamById);
-router.delete('/:id', existingId, deleteTeamById);
+router.use(existingId);
+router.put('/:id', validateTeam, updateTeam);
+router.get('/:id', findTeamById);
+router.delete('/:id', deleteTeamById);
 router.use((error, _req, res, _next) => {
     const { status, message } = error;
     res.status(status).json({ message });

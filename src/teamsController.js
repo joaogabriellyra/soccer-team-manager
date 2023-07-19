@@ -1,44 +1,78 @@
-const teams = require('./utils/teams');
+const fs = require('fs').promises;
+const path = require('path');
 const { OK, CREATED } = require('./utils/status');
 
-const findAllTeams = (_req, res) => {
-    res.status(OK).json({ teams });
+const TEAMS_DATA_PATH = './data/teams.json';
+
+const findAllTeams = async (_req, res, next) => {
+    try {
+        const data = await fs.readFile(path.resolve(__dirname, TEAMS_DATA_PATH));
+        const teams = JSON.parse(data);
+        res.status(OK).json({ teams });
+    } catch (error) {
+        return next(error);
+    }
 };
 
-const newTeam = (req, res) => {
-    const team = { ...req.body };
-
-    teams.push(team);
-
-    res.status(CREATED).send(team);
+const newTeam = async (req, res, next) => {
+    try {
+        const data = await fs.readFile(path.resolve(__dirname, TEAMS_DATA_PATH));
+        const teams = JSON.parse(data);
+        const team = { id: teams.length + 1, ...req.body };
+        teams.push(team);
+        await fs.writeFile(path.resolve(__dirname, TEAMS_DATA_PATH), JSON.stringify(teams));
+        res.status(CREATED).send(team);
+    } catch (error) {
+        return next(error);
+    }
 };
 
-const updateTeam = (req, res) => {
+const updateTeam = async (req, res, next) => {
     const { id } = req.params;
     const { name, initials } = req.body;
-    
-    const teamToUpdate = teams.find((team) => team.id === Number(id));
+    try {
+        const data = await fs.readFile(path.resolve(__dirname, TEAMS_DATA_PATH));
+        const teams = JSON.parse(data);
+        const teamToUpdate = teams.find((team) => team.id === Number(id));
+        teamToUpdate.name = name;
+        teamToUpdate.initials = initials;
 
-    teamToUpdate.name = name;
-    teamToUpdate.initials = initials;
+        await fs.writeFile(path.resolve(__dirname, TEAMS_DATA_PATH), JSON.stringify(teams));
 
-    res.status(OK).json({ teamToUpdate });
+        res.status(OK).json({ teamToUpdate });      
+    } catch (error) {
+        return next(error);
+    }
 };
 
-const findTeamById = (req, res) => {
+const findTeamById = async (req, res, next) => {
     const { id } = req.params;
 
-    const teamById = teams.find((team) => team.id === Number(id));
-
-    res.status(OK).json(teamById);
+    try {
+        const data = await fs.readFile(path.resolve(__dirname, TEAMS_DATA_PATH));
+        const teams = JSON.parse(data);
+        const teamById = teams.find((team) => team.id === Number(id));
+        console.log('hi');
+        res.status(OK).json(teamById);      
+    } catch (error) {
+        return next(error);
+    }
 };
 
-const deleteTeamById = (req, res) => {
-    const { id } = req.params;
-    const arrayPosition = teams.findIndex((team) => team.id === Number(id));
-    teams.splice(arrayPosition, 1);
-  
-    res.status(OK).end();
+const deleteTeamById = async (req, res, next) => {
+    try {
+        const { id } = req.params;
+        const data = await fs.readFile(path.resolve(__dirname, TEAMS_DATA_PATH));
+        const teams = JSON.parse(data);
+        const arrayPosition = teams.findIndex((team) => team.id === Number(id));
+        teams.splice(arrayPosition, 1);
+
+        await fs.writeFile(path.resolve(__dirname, TEAMS_DATA_PATH), JSON.stringify(teams));
+          
+        res.status(OK).end();
+    } catch (error) {
+        return next(error);
+    }
 };
 
 module.exports = { findAllTeams, newTeam, updateTeam, findTeamById, deleteTeamById };

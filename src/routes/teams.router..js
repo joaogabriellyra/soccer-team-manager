@@ -11,6 +11,8 @@ router.post('/', validateTeam, newTeam);
 router.put('/:id', existingId, validateTeam, updateTeam);
 router.get('/:id', existingId, findTeamById);
 router.delete('/:id', existingId, deleteTeamById);
-router.use((error, _req, res, _next) => res.status(500).json({ error: error.message }));
-
+router.use((error, _req, res, _next) => {
+    const { status, message } = error;
+    res.status(status).json({ message });
+});
 module.exports = router;
